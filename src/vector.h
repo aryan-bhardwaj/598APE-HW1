@@ -32,7 +32,7 @@ public:
   Vector operator / (const double);
   Vector operator / (const float);
   Vector operator / (const int);
-  Vector cross(const Vector a);
+  Vector cross(const Vector& a);
   double mag2();
   double mag();
   double dot(const Vector a);

@@ -63,7 +63,7 @@ Vector Vector::operator / (const float rhs) {
 Vector Vector::operator / (const int rhs) {
    return Vector(x/rhs, y/rhs, z/rhs);
 }
-Vector Vector::cross(const Vector a) {
+Vector Vector::cross(const Vector& a) {
    return Vector(y*a.z-z*a.y, z*a.x-x*a.z, x*a.y-y*a.x);
 }
 double Vector::mag2(){
