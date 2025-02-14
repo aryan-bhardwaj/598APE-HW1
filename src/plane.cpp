@@ -78,6 +78,8 @@ double Plane::getIntersection(Ray ray){
    const double norm = vect.dot(ray.point)+d;
    const double r = -norm/t;
    return (r>0)?r:inf;
+   // return ((r > 0) * r) + ((r <= 0) * inf);
+   // return r * (r > 0.0) + inf * (r <= 0.0);
 }
 
 bool Plane::getLightIntersection(Ray ray, double* fill){
