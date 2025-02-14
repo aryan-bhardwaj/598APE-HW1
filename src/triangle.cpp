@@ -1,4 +1,5 @@
 #include "triangle.h"
+#include <algorithm>
 
 Triangle::Triangle(Vector c, Vector b, Vector a, Texture* t):Plane(Vector(0,0,0), t, 0., 0., 0., 0., 0.){
    center = c;
@@ -8,22 +9,30 @@ Triangle::Triangle(Vector c, Vector b, Vector a, Texture* t):Plane(Vector(0,0,0)
    vect = right.cross(b-a).normalize();
 
    xsin = -right.z;
-   if(xsin<-1.)xsin = -1;
-   else if (xsin>1.)xsin=1.; 
+   // if(xsin<-1.)xsin = -1;
+   // else if (xsin>1.)xsin=1.; 
+   xsin = std::clamp(xsin, -1.0, 1.0);
+
    yaw = asin(xsin);
    xcos = sqrt(1.-xsin*xsin);
 
    zcos = right.x/xcos;
    zsin = -right.y/xcos;
-   if(zsin<-1.)zsin = -1;
-   else if (zsin>1.)zsin=1.;
-   if(zcos<-1.)zcos = -1;
-   else if (zcos>1.)zcos=1.;
+   // if(zsin<-1.)zsin = -1;
+   // else if (zsin>1.)zsin=1.;
+   zsin = std::clamp(zsin, -1.0, 1.0);
+
+   // if(zcos<-1.)zcos = -1;
+   // else if (zcos>1.)zcos=1.;
+   zcos = std::clamp(zcos, -1.0, 1.0);
+
    roll = asin(zsin);
 
    ycos = vect.z/xcos;
-   if(ycos<-1.)ycos = -1;
-   else if (ycos>1.)ycos=1.;
+   // if(ycos<-1.)ycos = -1;
+   // else if (ycos>1.)ycos=1.;
+   ycos = std::clamp(ycos, -1.0, 1.0);
+
    pitch = acos(ycos);
    ysin = sqrt(1-ycos*ycos);
 
