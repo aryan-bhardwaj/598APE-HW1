@@ -69,18 +69,19 @@ Vector Vector::cross(const Vector& a) {
 double Vector::mag2(){
    return x*x+y*y+z*z; 
 }
+// TODO: LOOK INTO OPTIMIZING THIS SQRT() FUNCTION
 double Vector::mag(){
    return sqrt(x*x+y*y+z*z); 
 }
-double Vector::dot(const Vector& a){
-   return x*a.x+y*a.y+z*a.z;
+
+double Vector::dot(const Vector& a) {
+   return x * a.x + y * a.y + z * a.z;
 }
 Vector Vector::normalize(){
    double m = mag();
    return Vector(x/m, y/m, z/m); 
 }
 
-  
 Vector solveScalers(Vector& v1, Vector& v2, Vector& v3, Vector C){
    double denom = v1.z*v2.y*v3.x-v1.y*v2.z*v3.x-v1.z*v2.x*v3.y+v1.x*v2.z*v3.y+v1.y*v2.x*v3.z-v1.x*v2.y*v3.z;
    double inv_denom = 1.0 / denom;
