@@ -35,24 +35,31 @@ void Shape::setRoll(double c){
    zsin = sin(roll);
 }
 
-void calcColor(unsigned char* toFill,Autonoma* c, Ray ray, unsigned int depth){
+void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth){
    double minTime = inf;
-   Shape* minShape;
+   Shape* minShape = NULL;
 
    // TODO: replace this loop with the BVH lookup
-   TimeAndShape bvhResults = c->intersectBVH(ray);
-   if (bvhResults.time != inf) {
-      minTime = bvhResults.time;
-      minShape = bvhResults.shape;
-   } else {    // we weren't able to find the shape in the bounding box
+   std::cout << "HERE!" << std::endl;
+   // TimeAndShape bvhResults = c->intersectBVH(ray);
+   // if (bvhResults.time != inf) {
+   //    std::cout << "found with bvh" << std::endl;
+   //    minTime = bvhResults.time;
+   //    minShape = bvhResults.shape;
+   // } else {    // we weren't able to find the shape in the bounding box
+   //    std::cout << "did not find with bvh" << std::endl;
       for (Shape* shape : c->shapes) {
+         std::cout << ray.point.x << std::endl;
          double time = shape->getIntersection(ray);
          if (time < minTime) {
             minTime = time;
             minShape = shape;
          }
       }
-   }
+   // }
+
+   // std::cout << "min time found: " << minTime << std::endl;
+   // std::cout << "min shape found: " << minShape << std::endl;
    
    if (minTime == inf) {
       double opacity, reflection, ambient;

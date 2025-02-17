@@ -1,4 +1,5 @@
 #include "sphere.h"
+#include <iostream>
 
 Sphere::Sphere(const Vector &c, Texture* t, double ya, double pi, double ro, double rad): Shape(c, t, ya, pi, ro){
    textureX = textureY = 1.;

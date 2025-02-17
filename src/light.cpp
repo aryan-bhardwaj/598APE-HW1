@@ -18,11 +18,13 @@ unsigned char* Light::getColor(unsigned char a, unsigned char b, unsigned char c
 }
 
 Autonoma::Autonoma(const Camera& c): camera(c){
+   bvhRoot = NULL;
    depth = 10;
    skybox = BLACK;
 }
 
 Autonoma::Autonoma(const Camera& c, Texture* tex): camera(c){
+   bvhRoot = NULL;
    depth = 10;
    skybox = tex;
 }
@@ -43,12 +45,11 @@ void Autonoma::removeLight(Light* s){
    lights.erase(find(lights.begin(), lights.end(), s));
 }
 
-// build the BVH tree
-
-// if not working, try passing in just triangles to shapes for buildBVH
-
 BVHNode* Autonoma::buildBVH(std::vector<Shape*>& shapes, int start, int end) {
    BVHNode* node = new BVHNode();
+   if (bvhRoot == NULL) {
+      bvhRoot = node;
+   }
 
    // Compute bounding box for all shapes in this range
    for (int i = start; i < end; i++) {
