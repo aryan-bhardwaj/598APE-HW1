@@ -31,4 +31,5 @@ bool Disk::getLightIntersection(Ray ray, double* fill){
 }
 
 AABB Disk::getBoundingBox() {
+   return AABB();
 }

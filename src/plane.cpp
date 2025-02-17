@@ -122,3 +122,7 @@ Vector Plane::getNormal(Vector point){
       return ret;
    }
 }
+
+AABB Plane::getBoundingBox() {
+    return AABB();
+}

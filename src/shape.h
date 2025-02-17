@@ -22,7 +22,7 @@ class Shape{
    virtual void setPitch(double d) = 0;
    virtual void setRoll(double d) = 0;
 
-   virtual AABB getBoundingBox() {return AABB();};
+   virtual AABB getBoundingBox() = 0;
    bool inBVH;
 };
 

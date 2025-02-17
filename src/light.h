@@ -5,7 +5,8 @@
 #include "Textures/texture.h"
 #include "Textures/colortexture.h"
 #include <vector>
-#include "BVHNode.cpp"
+#include "aabb.cpp"
+// #include "BVHNode.cpp"
 
 class Light{
   public:
@@ -16,6 +17,26 @@ class Light{
 };
 
 class Shape;
+
+struct TimeAndShape {
+   double time;
+   Shape* shape;
+};
+
+class BVHNode {
+   public:
+       AABB box;             // Bounding box for the node
+       BVHNode* left;        // Left child
+       BVHNode* right;       // Right child
+       std::vector<Shape*> shapes; // Shapes (only for leaf nodes)
+   
+       BVHNode() : left(nullptr), right(nullptr) {}
+   
+       // Check if this node intersects with the ray
+       bool intersect(const Ray& ray) {
+           return box.intersect(ray);
+       }
+};
 
 class Autonoma{
 public:
@@ -36,14 +57,9 @@ public:
    void removeLight(Light* s);
 
    // BVH functions
-   BVHNode* buildBVH(std::vector<Shape*>& shapes, int start, int end);     // function to build the BVH tree
-   TimeAndShape Autonoma::intersectBVH(Ray ray);
-   TimeAndShape Autonoma::intersectBVHRecursive(Ray ray, BVHNode* node);
-};
-
-struct TimeAndShape {
-   double time;
-   Shape* shape;
+   BVHNode* buildBVH(std::vector<Shape*>& shapes, int start, int end);
+   TimeAndShape intersectBVH(Ray ray);
+   TimeAndShape intersectBVHRecursive(Ray ray, BVHNode* node);
 };
 
 void getLight(double* toFill, Autonoma* aut, Vector& point, Vector norm, unsigned char r);

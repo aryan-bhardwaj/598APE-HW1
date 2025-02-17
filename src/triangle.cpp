@@ -69,7 +69,7 @@ bool Triangle::getLightIntersection(Ray ray, double* fill){
    return false;
 }
 
-AABB Triangle::getBoundingBox() override {
+AABB Triangle::getBoundingBox() {
     // Extract the three vertices
     Vector a = center + right * thirdX + up * textureY;  // Derived from constructor calculations
     Vector b = center + right * textureX;

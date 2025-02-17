@@ -58,6 +58,12 @@ $(OBJ_DIR)pictbox.obj: $(SRC_DIR)pictbox.cpp $(SRC_DIR)pictbox.h $(OBJ_DIR)box.o
 $(OBJ_DIR)disk.obj: $(SRC_DIR)disk.cpp $(SRC_DIR)disk.h $(OBJ_DIR)/plane.obj
 	$(FUNC) $(output)$(OBJ_DIR)disk.obj $(copt) $(SRC_DIR)disk.cpp $(FLAGS)
 
+$(OBJ_DIR)aabb.obj: $(SRC_DIR)aabb.cpp
+	$(FUNC) $(output)$(OBJ_DIR)aabb.obj $(copt) $(SRC_DIR)aabb.cpp $(FLAGS)
+
+# $(OBJ_DIR)BVHNode.obj: $(SRC_DIR)BVHNode.cpp
+# 	$(FUNC) $(output)$(OBJ_DIR)BVHNode.obj $(copt) $(SRC_DIR)BVHNode.cpp $(FLAGS)
+
 clean:
 	cd Textures && make clean
 	rm -f $(OBJ_DIR)*.obj
