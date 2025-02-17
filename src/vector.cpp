@@ -76,7 +76,6 @@ Vector Vector::cross(const Vector& a) {
 double Vector::mag2(){
    return x*x+y*y+z*z; 
 }
-// TODO: LOOK INTO OPTIMIZING THIS SQRT() FUNCTION
 double Vector::mag(){
    return sqrt(x*x+y*y+z*z); 
 }
