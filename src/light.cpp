@@ -4,6 +4,7 @@
 #include "camera.h"
 #include <algorithm>
 #include "aabb.cpp"
+#include <iostream>
       
 Light::Light(const Vector & cente, unsigned char* colo) : center(cente){
    color = colo;
@@ -59,12 +60,15 @@ BVHNode* Autonoma::buildBVH(std::vector<Shape*>& shapes, int start, int end) {
    }
 
    int numShapes = end - start;
-   if (numShapes <= 2) { // Leaf node condition (adjust threshold as needed)
+   if (numShapes <= 20) { // Leaf node condition
+      // std::cout << "num shapes at this leaf: " << numShapes << std::endl;
        for (int i = start; i < end; i++) {
          if (shapes[i]->inBVH) {
+            // std::cout << "this shape is going into the BVH" << std::endl;
             node->shapes.push_back(shapes[i]);
          }
        }
+      //  std::cout << "returning..." << std::endl;
        return node;
    }
 
@@ -72,11 +76,29 @@ BVHNode* Autonoma::buildBVH(std::vector<Shape*>& shapes, int start, int end) {
    Vector size = node->box.max - node->box.min;
    int axis = (size.x > size.y && size.x > size.z) ? 0 : (size.y > size.z ? 1 : 2);
 
-   // Sort shapes by centroid along the chosen axis
-   std::sort(shapes.begin() + start, shapes.begin() + end, [&](Shape* a, Shape* b) {
-       return a->getBoundingBox().min[axis] < b->getBoundingBox().min[axis];
-   });
+   // // Sort shapes by centroid along the chosen axis
+   // std::sort(shapes.begin() + start, shapes.begin() + end, [&](Shape* a, Shape* b) {
+   //    //  return a->getBoundingBox().min[axis] < b->getBoundingBox().min[axis];
+   //    if (axis == 0) {
+   //       return a->center.x < b->center.x;
+   //    } else if (axis == 1) {
+   //       return a->center.y < b->center.y;
+   //    } else {
+   //       return a->center.z < b->center.z;
+   //    }
+   // });
 
+   std::stable_sort(shapes.begin() + start, shapes.begin() + end, [&](Shape* a, Shape* b) {
+      AABB bboxA = a->getBoundingBox();
+      AABB bboxB = b->getBoundingBox();
+  
+      double centroidA = (bboxA.min[axis] + bboxA.max[axis]) * 0.5;
+      double centroidB = (bboxB.min[axis] + bboxB.max[axis]) * 0.5;
+  
+      if (centroidA != centroidB) return centroidA < centroidB;
+      return bboxA.min[axis] < bboxB.min[axis]; // Tie-breaker
+  });
+  
    // Split into two halves
    int mid = start + numShapes / 2;
    node->left = buildBVH(shapes, start, mid);
