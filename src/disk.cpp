@@ -1,5 +1,7 @@
 #include "disk.h"
-Disk::Disk(const Vector &c, Texture* t, double ya, double pi, double ro, double tx, double ty):Plane(c, t, ya, pi, ro, tx, ty){}
+Disk::Disk(const Vector &c, Texture* t, double ya, double pi, double ro, double tx, double ty):Plane(c, t, ya, pi, ro, tx, ty){
+   inBVH = false;
+}
 
 
 double Disk::getIntersection(Ray ray){
@@ -26,4 +28,7 @@ bool Disk::getLightIntersection(Ray ray, double* fill){
    fill[1]*=temp[1]/255.;
    fill[2]*=temp[2]/255.;
    return false;
+}
+
+AABB Disk::getBoundingBox() {
 }

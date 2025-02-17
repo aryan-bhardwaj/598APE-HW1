@@ -36,6 +36,7 @@ Triangle::Triangle(Vector c, Vector b, Vector a, Texture* t):Plane(Vector(0,0,0)
    thirdX = np.x;
    
    d = -vect.dot(center);
+   inBVH = true;
 }
 
 double Triangle::getIntersection(Ray ray){
@@ -66,4 +67,26 @@ bool Triangle::getLightIntersection(Ray ray, double* fill){
    fill[1]*=temp[1]/255.;
    fill[2]*=temp[2]/255.;
    return false;
+}
+
+AABB Triangle::getBoundingBox() override {
+    // Extract the three vertices
+    Vector a = center + right * thirdX + up * textureY;  // Derived from constructor calculations
+    Vector b = center + right * textureX;
+    Vector c = center;
+
+    // Compute min and max coordinates
+    Vector min(
+        std::min({a.x, b.x, c.x}),
+        std::min({a.y, b.y, c.y}),
+        std::min({a.z, b.z, c.z})
+    );
+
+    Vector max(
+        std::max({a.x, b.x, c.x}),
+        std::max({a.y, b.y, c.y}),
+        std::max({a.z, b.z, c.z})
+    );
+
+    return AABB(min, max);
 }

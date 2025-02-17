@@ -1,6 +1,7 @@
 #ifndef __SHAPE_H__
 #define __SHAPE_H__
 #include "light.h"
+#include "aabb.cpp"
 
 class Shape{
   public:
@@ -20,6 +21,9 @@ class Shape{
    virtual void setYaw(double d) = 0;
    virtual void setPitch(double d) = 0;
    virtual void setRoll(double d) = 0;
+
+   virtual AABB getBoundingBox() {return AABB();};
+   bool inBVH;
 };
 
 void calcColor(unsigned char* toFill, Autonoma*, Ray ray, unsigned int depth);

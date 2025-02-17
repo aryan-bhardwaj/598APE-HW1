@@ -38,14 +38,22 @@ void Shape::setRoll(double c){
 void calcColor(unsigned char* toFill,Autonoma* c, Ray ray, unsigned int depth){
    double minTime = inf;
    Shape* minShape;
-   for (Shape* shape : c->shapes) {
-      double time = shape->getIntersection(ray);
-      if (time < minTime) {
-         minTime = time;
-         minShape = shape;
+
+   // TODO: replace this loop with the BVH lookup
+   TimeAndShape bvhResults = c->intersectBVH(ray);
+   if (bvhResults.time != inf) {
+      minTime = bvhResults.time;
+      minShape = bvhResults.shape;
+   } else {    // we weren't able to find the shape in the bounding box
+      for (Shape* shape : c->shapes) {
+         double time = shape->getIntersection(ray);
+         if (time < minTime) {
+            minTime = time;
+            minShape = shape;
+         }
       }
    }
-
+   
    if (minTime == inf) {
       double opacity, reflection, ambient;
       Vector temp = ray.vector.normalize();
