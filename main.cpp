@@ -529,6 +529,7 @@ int main(int argc, const char** argv){
    // TODO: call buildBVH() here
    std::cout << "There are " << MAIN_DATA->shapes.size() << " shapes in this image!" << std::endl;
    MAIN_DATA->buildBVH(MAIN_DATA->shapes, 0, MAIN_DATA->shapes.size());
+   std::cout << "There are " << MAIN_DATA->numBVHshapes << " shapes in this BVH!" << std::endl;
    
    int frame;
    char command[200];

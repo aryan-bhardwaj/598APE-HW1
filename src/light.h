@@ -48,6 +48,7 @@ public:
    std::vector<Light*> lights;
 
    BVHNode* bvhRoot;           // Root of the BVH
+   int numBVHshapes;
 
    Autonoma(const Camera &c);
    Autonoma(const Camera &c, Texture* tex);
