@@ -22,11 +22,6 @@ bool Box::getLightIntersection(Ray ray, double* fill){
 
    if(r<=0. || r>=1.) return false;
    Vector dist = solveScalers(right, up, vect, ray.point+ray.vector*r-center);
-<<<<<<< HEAD
-   // if( ((dist.x>=0)?dist.x:-dist.x)>textureX/2 || ((dist.y>=0)?dist.y:-dist.y)>textureY/2 ) return false;
-   if (std::abs(dist.x) > textureX / 2 || std::abs(dist.y) > textureY / 2) return false;
-=======
->>>>>>> d98414a86053c53fe4e16a31cc72f9afd8f06750
 
    // if( ((dist.x>=0)?dist.x:-dist.x)>textureX/2 || ((dist.y>=0)?dist.y:-dist.y)>textureY/2 ) return false;
    // return !(std::abs(dist.x) <= textureX / 2 && std::abs(dist.y) <= textureY / 2);
