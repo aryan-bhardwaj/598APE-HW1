@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <stack>
 
 Shape::Shape(const Vector &c, Texture* t, double ya, double pi, double ro): center(c), texture(t), yaw(ya), pitch(pi), roll(ro){
 };
@@ -34,58 +35,30 @@ void Shape::setRoll(double c){
    zsin = sin(roll);
 }
 
-typedef struct {
-   double time;
-   Shape* shape;
-} TimeAndShape;
-
-// void insertionSort(TimeAndShape *arr, int n) {
-//     for (int i = 1; i < n; ++i) {
-//         TimeAndShape key = arr[i];
-//         int j = i - 1;
-//         while (j >= 0 && arr[j].time > key.time) {
-//             arr[j + 1] = arr[j];
-//             j = j - 1;
-//         }
-//         arr[j + 1] = key;
-//     }
-// }
-
-void insertionSort(std::vector<TimeAndShape>& arr, int n) {
-   for (int i = 1; i < n; ++i) {
-       TimeAndShape key = arr[i];
-       int j = i - 1;
-       while (j >= 0 && arr[j].time > key.time) {
-           arr[j + 1] = arr[j];
-           j = j - 1;
-       }
-       arr[j + 1] = key;
-   }
-}
-
 void calcColor(unsigned char* toFill,Autonoma* c, Ray ray, unsigned int depth){
-   std::vector<TimeAndShape> times;
+   double minTime = inf;
+   Shape* minShape;
    for (Shape* shape : c->shapes) {
       double time = shape->getIntersection(ray);
-      times.push_back((TimeAndShape){ time, shape });
+      if (time < minTime) {
+         minTime = time;
+         minShape = shape;
+      }
    }
-   insertionSort(times, times.size());
-   
-   if (times.size() == 0 || times[0].time == inf) {
+
+   if (minTime == inf) {
       double opacity, reflection, ambient;
       Vector temp = ray.vector.normalize();
       const double x = temp.x;
       const double z = temp.z;
-      // const double me = (temp.y<0)?-temp.y:temp.y;    // TODO: Change this?
       const double me = std::abs(temp.y);
       const double angle = atan2(z, x);
       c->skybox->getColor(toFill, &ambient, &opacity, &reflection, fix(angle/M_TWO_PI),fix(me));
       return;
    }
 
-   double curTime = times[0].time;
-   Shape* curShape = times[0].shape;
-   // free(times);
+   double curTime = minTime;
+   Shape* curShape = minShape;
 
    Vector intersect = curTime*ray.vector+ray.point;
    double opacity, reflection, ambient;
