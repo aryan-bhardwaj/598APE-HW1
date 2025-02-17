@@ -6,6 +6,7 @@
 //#include <printf.h>
 #include <stddef.h>
 #include "vector.h"
+#include <bits/stdc++.h>
 
 Vector::Vector(double a, double b, double c) : x(a), y(b), z(c) {
 }
@@ -55,13 +56,19 @@ Vector Vector::operator * (const int rhs) {
    return Vector(x*rhs, y*rhs, z*rhs);
 }
 Vector Vector::operator / (const double rhs) {
-   return Vector(x/rhs, y/rhs, z/rhs);
+   double inv = 1/rhs;
+   // return Vector(x/rhs, y/rhs, z/rhs);
+   return Vector(x*inv, y*inv, z*inv);
 }
 Vector Vector::operator / (const float rhs) {
-   return Vector(x/rhs, y/rhs, z/rhs);
+   float inv = 1/rhs;
+   // return Vector(x/rhs, y/rhs, z/rhs);
+   return Vector(x*inv, y*inv, z*inv);
 }
 Vector Vector::operator / (const int rhs) {
-   return Vector(x/rhs, y/rhs, z/rhs);
+   int inv = 1/rhs;
+   // return Vector(x/rhs, y/rhs, z/rhs);
+   return Vector(x*inv, y*inv, z*inv);
 }
 Vector Vector::cross(const Vector& a) {
    return Vector(y*a.z-z*a.y, z*a.x-x*a.z, x*a.y-y*a.x);
@@ -77,9 +84,27 @@ double Vector::mag(){
 double Vector::dot(const Vector& a) {
    return x * a.x + y * a.y + z * a.z;
 }
-Vector Vector::normalize(){
-   double m = mag();
-   return Vector(x/m, y/m, z/m); 
+
+// fast inverse square root to approximate vector normalization
+double fastInverseSqrt(double number) {
+   long i;
+   double x2, y;
+   x2 = number * 0.5;
+   y  = number;
+   i  = *(long*)&y;
+   i  = 0x5fe6eb50c7b537a9 - (i >> 1);
+   y  = *(double*)&i;
+   y  = y * (1.5 - (x2 * y * y));
+   return y;
+}
+
+Vector Vector::normalize() {
+   double magSq = x*x + y*y + z*z;
+   if (magSq == 0) {
+      return *this;
+   }
+   double invMag = fastInverseSqrt(magSq);
+   return Vector(x * invMag, y * invMag, z * invMag);
 }
 
 Vector solveScalers(Vector& v1, Vector& v2, Vector& v3, Vector C){
