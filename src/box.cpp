@@ -15,7 +15,6 @@ double Box::getIntersection(Ray ray){
    return (std::abs(dist.x) > textureX / 2 || std::abs(dist.y) > textureY / 2)?inf:time;
 }
 
-// TODO: optimize this lil guy, it's taking too long
 bool Box::getLightIntersection(Ray ray, double* fill){
    const double t = ray.vector.dot(vect);
    const double norm = vect.dot(ray.point)+d;

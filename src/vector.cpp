@@ -116,17 +116,11 @@ Vector Vector::normalize() {
 }
 
 Vector solveScalers(Vector& v1, Vector& v2, Vector& v3, Vector C){
-   // std::cout << "here!" << std::endl;
-   // std::cout << v1.x << std::endl;
-   // std::cout << v2.x << std::endl;
-   // std::cout << v3.x << std::endl;
-   // std::cout << C.x << std::endl;
    double denom = v1.z*v2.y*v3.x-v1.y*v2.z*v3.x-v1.z*v2.x*v3.y+v1.x*v2.z*v3.y+v1.y*v2.x*v3.z-v1.x*v2.y*v3.z;
    double inv_denom = 1.0 / denom;
    double a = C.z*v2.y*v3.x-C.y*v2.z*v3.x-C.z*v2.x*v3.y+C.x*v2.z*v3.y+C.y*v2.x*v3.z-C.x*v2.y*v3.z;
    double b = -C.z*v1.y*v3.x+C.y*v1.z*v3.x+C.z*v1.x*v3.y-C.x*v1.z*v3.y-C.y*v1.x*v3.z+C.x*v1.y*v3.z;
    double c = C.z*v1.y*v2.x-C.y*v1.z*v2.x-C.z*v1.x*v2.y+C.x*v1.z*v2.y+C.y*v1.x*v2.z-C.x*v1.y*v2.z;
-   // return Vector(a/denom, b/denom, c/denom);
    return Vector(a*inv_denom, b*inv_denom, c*inv_denom);
 }
 

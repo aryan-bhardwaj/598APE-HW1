@@ -43,18 +43,7 @@ void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth){
    double minTime = inf;
    Shape* minShape = NULL;
 
-   // auto startBVH = high_resolution_clock::now();
-
-   // TODO: replace this loop with the BVH lookup
    TimeAndShape bvhResults = c->intersectBVH(ray);
-
-   // auto endBVH = high_resolution_clock::now();
-   // std::cout << "BVH intersection time: " 
-   //           << duration_cast<microseconds>(endBVH - startBVH).count() << " µs" << std::endl;
-
-   // auto startLoop = high_resolution_clock::now();
-
-
    if (bvhResults.time != inf) {
       minTime = bvhResults.time;
       minShape = bvhResults.shape;
@@ -67,12 +56,6 @@ void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth){
          }
       }
    }
-   
-   // auto endLoop = high_resolution_clock::now();
-   // std::cout << "Shape intersection loop time: " 
-   //           << duration_cast<microseconds>(endLoop - startLoop).count() << " µs" << std::endl;
-   // std::cout << "min time found: " << minTime << std::endl;
-   // std::cout << "min shape found: " << minShape << std::endl;
    
    if (minTime == inf) {
       double opacity, reflection, ambient;

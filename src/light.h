@@ -47,7 +47,7 @@ public:
    std::vector<Shape*> shapes;
    std::vector<Light*> lights;
 
-   BVHNode* bvhRoot;           // Root of the BVH
+   BVHNode* bvhRoot;
    int numBVHshapes;
    std::vector<Shape*> nonBVHshapes;
 
