@@ -49,6 +49,7 @@ public:
 
    BVHNode* bvhRoot;           // Root of the BVH
    int numBVHshapes;
+   std::vector<Shape*> nonBVHshapes;
 
    Autonoma(const Camera &c);
    Autonoma(const Camera &c, Texture* tex);

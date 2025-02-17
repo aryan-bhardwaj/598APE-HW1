@@ -62,33 +62,20 @@ BVHNode* Autonoma::buildBVH(std::vector<Shape*>& shapes, int start, int end) {
 
    int numShapes = end - start;
    if (numShapes <= 5) { // Leaf node condition
-      // std::cout << "num shapes at this leaf: " << numShapes << std::endl;
        for (int i = start; i < end; i++) {
          if (shapes[i]->inBVH) {
-            // std::cout << "this shape is going into the BVH" << std::endl;
             node->shapes.push_back(shapes[i]);
             numBVHshapes += 1;
+         } else {
+            nonBVHshapes.push_back(shapes[i]);
          }
        }
-      //  std::cout << "returning..." << std::endl;
        return node;
    }
 
    // Find the longest axis to split
    Vector size = node->box.max - node->box.min;
    int axis = (size.x > size.y && size.x > size.z) ? 0 : (size.y > size.z ? 1 : 2);
-
-//    std::stable_sort(shapes.begin() + start, shapes.begin() + end, [&](Shape* a, Shape* b) {
-//       AABB bboxA = a->getBoundingBox();
-//       AABB bboxB = b->getBoundingBox();
-  
-//       double centroidA = (bboxA.min[axis] + bboxA.max[axis]) * 0.5;
-//       double centroidB = (bboxB.min[axis] + bboxB.max[axis]) * 0.5;
-  
-//       if (centroidA != centroidB) return centroidA < centroidB;
-//       return bboxA.min[axis] < bboxB.min[axis]; // Tie-breaker
-//   });
-
    int mid = start + numShapes / 2;
 
    std::nth_element(shapes.begin() + start, shapes.begin() + mid, shapes.begin() + end, [&](Shape* a, Shape* b) {
@@ -101,19 +88,6 @@ BVHNode* Autonoma::buildBVH(std::vector<Shape*>& shapes, int start, int end) {
       return centroidA < centroidB;
    });
   
-   // Split into two halves
-   // int mid = start + numShapes / 2;
-   // node->left = buildBVH(shapes, start, mid);
-   // node->right = buildBVH(shapes, mid, end);
-   // cilk_sync;
-
-   // #pragma omp task shared(node)
-   // node->left = buildBVH(shapes, start, mid);
-   // #pragma omp task shared(node)
-   // node->right = buildBVH(shapes, mid, end);
-
-   // #pragma omp taskwait
-
    #pragma omp parallel sections
     {
         #pragma omp section
@@ -131,7 +105,6 @@ TimeAndShape Autonoma::intersectBVH(Ray ray) {
 }
 
 TimeAndShape Autonoma::intersectBVHRecursive(Ray ray, BVHNode* node) {
-   // if (!node || !node->intersect(ray)) return inf;
    if (!node || !node->intersect(ray)) return (TimeAndShape){inf, NULL};
 
    // Check if leaf node has no shapes in it (possible with our BVH implementation)
@@ -150,13 +123,10 @@ TimeAndShape Autonoma::intersectBVHRecursive(Ray ray, BVHNode* node) {
                nearest_shape = shape;
             }
       }
-      // return nearest;
       return (TimeAndShape){nearest_time, nearest_shape};
    }
 
    // Recursively check left and right children
-   // double leftTime = intersectBVHRecursive(ray, node->left);
-   // double rightTime = intersectBVHRecursive(ray, node->right);
    TimeAndShape leftTimeAndShape = intersectBVHRecursive(ray, node->left);
    TimeAndShape rightTimeAndShape = intersectBVHRecursive(ray, node->right);
 

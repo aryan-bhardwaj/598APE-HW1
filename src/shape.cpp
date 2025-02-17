@@ -56,13 +56,10 @@ void calcColor(unsigned char* toFill, Autonoma* c, Ray ray, unsigned int depth){
 
 
    if (bvhResults.time != inf) {
-      // std::cout << "found with bvh" << std::endl;
       minTime = bvhResults.time;
       minShape = bvhResults.shape;
    } else {    // we weren't able to find the shape in the bounding box
-      // std::cout << "did not find with bvh" << std::endl;
-      for (Shape* shape : c->shapes) {
-         // std::cout << ray.point.x << std::endl;
+      for (Shape* shape : c->nonBVHshapes) {
          double time = shape->getIntersection(ray);
          if (time < minTime) {
             minTime = time;
