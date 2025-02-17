@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "Textures/texture.h"
 #include "Textures/colortexture.h"
+#include <vector>
 
 class Light{
   public:
@@ -13,30 +14,23 @@ class Light{
    Light(const Vector & cente, unsigned char* colo);
 };
 
-struct LightNode{
-   Light* data;
-   LightNode* prev, *next;
-};
-
 class Shape;
-struct ShapeNode{
-   Shape* data;
-   ShapeNode* prev, *next;
-};
 
 class Autonoma{
 public:
    Camera camera;
    Texture* skybox;
    unsigned int depth;
-   ShapeNode *listStart, *listEnd;
-   LightNode *lightStart, *lightEnd;
+
+   std::vector<Shape*> shapes;
+   std::vector<Light*> lights;
+
    Autonoma(const Camera &c);
    Autonoma(const Camera &c, Texture* tex);
    void addShape(Shape* s);
-   void removeShape(ShapeNode* s);
+   void removeShape(Shape* s);
    void addLight(Light* s);
-   void removeLight(LightNode* s);
+   void removeLight(Light* s);
 };
 
 void getLight(double* toFill, Autonoma* aut, Vector& point, Vector norm, unsigned char r);
