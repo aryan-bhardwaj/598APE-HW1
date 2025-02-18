@@ -13,6 +13,7 @@
 #include<stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <omp.h>
 using namespace std;
 
 #include <sys/time.h>
@@ -393,17 +394,11 @@ void setFrame(const char* animateFile, Autonoma* MAIN_DATA, int frame, int frame
                exit(1);
             }
          } else if (streq(object_type, "object")) {
-            ShapeNode* node = MAIN_DATA->listStart;
-            for (int i=0; i<obj_num; i++) {
-               if (node == MAIN_DATA->listEnd) {
-                  printf("Could not find object number %d\n", obj_num);
-                  exit(1);
-               }
-               if (i == obj_num)
-                  break;
-               node = node->next;
+            if (obj_num < 0 || obj_num >= MAIN_DATA->shapes.size()) {
+               printf("Could not find object number %d\n", obj_num);
+               exit(1);
             }
-            Shape* shape = node->data;
+            Shape* shape = MAIN_DATA->shapes[obj_num];
 
             if (streq(field_type, "yaw")) {
                shape->setYaw(result);
@@ -531,6 +526,9 @@ int main(int argc, const char** argv){
    }
 
    Autonoma* MAIN_DATA = createInputs(inFile);
+   // std::cout << "There are " << MAIN_DATA->shapes.size() << " shapes in this image!" << std::endl;
+   MAIN_DATA->buildBVH(MAIN_DATA->shapes, 0, MAIN_DATA->shapes.size());
+   // std::cout << "There are " << MAIN_DATA->numBVHshapes << " shapes in this BVH!" << std::endl;
    
    int frame;
    char command[200];

@@ -2,6 +2,10 @@
 #include "light.h"
 #include "shape.h"
 #include "camera.h"
+#include <algorithm>
+#include "aabb.cpp"
+#include <iostream>
+// #include <cilk/cilk.h>
       
 Light::Light(const Vector & cente, unsigned char* colo) : center(cente){
    color = colo;
@@ -16,129 +20,151 @@ unsigned char* Light::getColor(unsigned char a, unsigned char b, unsigned char c
 }
 
 Autonoma::Autonoma(const Camera& c): camera(c){
-   listStart = NULL;
-   listEnd = NULL;
-   lightStart = NULL;
-   lightEnd = NULL;
+   bvhRoot = NULL;
    depth = 10;
    skybox = BLACK;
 }
 
 Autonoma::Autonoma(const Camera& c, Texture* tex): camera(c){
-   listStart = NULL;
-   listEnd = NULL;
-   lightStart = NULL;
-   lightEnd = NULL;
+   bvhRoot = NULL;
    depth = 10;
    skybox = tex;
 }
 
 void Autonoma::addShape(Shape* r){
-   ShapeNode* hi = (ShapeNode*)malloc(sizeof(ShapeNode));
-   hi->data = r;
-   hi->next = hi->prev = NULL;
-   if(listStart==NULL){
-      listStart = listEnd = hi;
-   }
-   else{
-      listEnd->next = hi;
-      hi->prev = listEnd;
-      listEnd = hi;
-   }
+   shapes.push_back(r);
 }
 
-void Autonoma::removeShape(ShapeNode* s){
-   if(s==listStart){
-      if(s==listEnd){
-         listStart = listStart = NULL;
-      }
-      else{
-         listStart = s->next;
-         listStart->prev = NULL;
-      }
-   }
-   else if(s==listEnd){
-      listEnd = s->prev;
-      listEnd->next = NULL;
-   }
-   else{
-      ShapeNode *b4 = s->prev, *aft = s->next;
-      b4->next = aft;
-      aft->prev = b4;
-   }
-   free(s);
+void Autonoma::removeShape(Shape* s){
+   shapes.erase(find(shapes.begin(), shapes.end(), s));
 }
 
 void Autonoma::addLight(Light* r){
-   LightNode* hi = (LightNode*)malloc(sizeof(LightNode));
-   hi->data = r;
-   hi->next = hi->prev = NULL;
-   if(lightStart==NULL){
-      lightStart = lightEnd = hi;
-   }
-   else{
-      lightEnd->next = hi;
-      hi->prev = lightEnd;
-      lightEnd = hi;
-   }
+   lights.push_back(r);
 }
 
-void Autonoma::removeLight(LightNode* s){
-   if(s==lightStart){
-      if(s==lightEnd){
-         lightStart = lightStart = NULL;
+void Autonoma::removeLight(Light* s){
+   lights.erase(find(lights.begin(), lights.end(), s));
+}
+
+BVHNode* Autonoma::buildBVH(std::vector<Shape*>& shapes, int start, int end) {
+   BVHNode* node = new BVHNode();
+   if (bvhRoot == NULL) {
+      bvhRoot = node;
+   }
+
+   // Compute bounding box for all shapes in this range
+   for (int i = start; i < end; i++) {
+      if (shapes[i]->inBVH) {
+         node->box.expand(shapes[i]->getBoundingBox());
       }
-      else{
-         lightStart = s->next;
-         lightStart->prev = NULL;
+   }
+
+   int numShapes = end - start;
+   if (numShapes <= 5) { // Leaf node condition
+       for (int i = start; i < end; i++) {
+         if (shapes[i]->inBVH) {
+            node->shapes.push_back(shapes[i]);
+            numBVHshapes += 1;
+         } else {
+            nonBVHshapes.push_back(shapes[i]);
+         }
+       }
+       return node;
+   }
+
+   // Find the longest axis to split
+   Vector size = node->box.max - node->box.min;
+   int axis = (size.x > size.y && size.x > size.z) ? 0 : (size.y > size.z ? 1 : 2);
+   int mid = start + numShapes / 2;
+
+   std::nth_element(shapes.begin() + start, shapes.begin() + mid, shapes.begin() + end, [&](Shape* a, Shape* b) {
+      AABB bboxA = a->getBoundingBox();
+      AABB bboxB = b->getBoundingBox();
+
+      double centroidA = (bboxA.min[axis] + bboxA.max[axis]) * 0.5;
+      double centroidB = (bboxB.min[axis] + bboxB.max[axis]) * 0.5;
+
+      return centroidA < centroidB;
+   });
+  
+   #pragma omp parallel sections
+    {
+        #pragma omp section
+        node->left = buildBVH(shapes, start, mid);
+
+        #pragma omp section
+        node->right = buildBVH(shapes, mid, end);
+   }
+   return node;
+}
+
+
+TimeAndShape Autonoma::intersectBVH(Ray ray) {
+   return intersectBVHRecursive(ray, bvhRoot);
+}
+
+TimeAndShape Autonoma::intersectBVHRecursive(Ray ray, BVHNode* node) {
+   if (!node || !node->intersect(ray)) return (TimeAndShape){inf, NULL};
+
+   // Check if leaf node has no shapes in it (possible with our BVH implementation)
+   if (!node->left && !node->right && node->shapes.empty()) {
+      return (TimeAndShape){inf, NULL};
+   }
+
+   // If this is a leaf node, check for intersection with shapes
+   if (node->shapes.size() > 0) {
+      double nearest_time = inf;
+      Shape* nearest_shape = NULL;
+      for (Shape* shape : node->shapes) {
+            double time = shape->getIntersection(ray);
+            if (time < nearest_time) {
+               nearest_time = time;
+               nearest_shape = shape;
+            }
       }
+      return (TimeAndShape){nearest_time, nearest_shape};
    }
-   else if(s==lightEnd){
-      lightEnd = s->prev;
-      lightEnd->next = NULL;
+
+   // Recursively check left and right children
+   TimeAndShape leftTimeAndShape = intersectBVHRecursive(ray, node->left);
+   TimeAndShape rightTimeAndShape = intersectBVHRecursive(ray, node->right);
+
+   if (leftTimeAndShape.time < rightTimeAndShape.time) {
+      return leftTimeAndShape;
    }
-   else{
-      LightNode *b4 = s->prev, *aft = s->next;
-      b4->next = aft;
-      aft->prev = b4;
-   }
-   free(s);
+   return rightTimeAndShape;
 }
 
 void getLight(double* tColor, Autonoma* aut, Vector& point, Vector norm, unsigned char flip){
    tColor[0] = tColor[1] = tColor[2] = 0.;
-   LightNode *t = aut->lightStart;
-   while(t!=NULL){
+   for (Light* light : aut->lights) {
       double lightColor[3];     
-      lightColor[0] = t->data->color[0]/255.;
-      lightColor[1] = t->data->color[1]/255.;
-      lightColor[2] = t->data->color[2]/255.;
-      Vector ra = t->data->center-point;
-      ShapeNode* shapeIter = aut->listStart;
+      lightColor[0] = light->color[0]/255.;
+      lightColor[1] = light->color[1]/255.;
+      lightColor[2] = light->color[2]/255.;
+
+      Vector ra = light->center-point;
       bool hit = false;
-      while(!hit && shapeIter!=NULL){
-        hit = shapeIter->data->getLightIntersection(Ray(point+ra*.01, ra), lightColor);
-         shapeIter = shapeIter->next;
+
+      for (Shape* shape : aut->shapes) {
+         if (hit) {
+            break;
+         } else {
+            hit = shape->getLightIntersection(Ray(point+ra*.01, ra), lightColor);
+         }
       }
       double perc = (norm.dot(ra)/(ra.mag()*norm.mag()));
       if(!hit){
-      if(flip && perc<0) perc=-perc;
-        if(perc>0){
-      
-         // tColor[0]+= perc*(lightColor[0]);
-         // tColor[1]+= perc*(lightColor[0]);
-         // tColor[2]+= perc*(lightColor[0]);
-         // if(tColor[0]>1.) tColor[0] = 1.;
-         // if(tColor[1]>1.) tColor[1] = 1.;
-         // if(tColor[2]>1.) tColor[2] = 1.;
-         tColor[0]+= perc*(lightColor[0]);
-         if(tColor[0]>1.) tColor[0] = 1.;
-         tColor[1]+= perc*(lightColor[0]);
-         if(tColor[1]>1.) tColor[1] = 1.;
-         tColor[2]+= perc*(lightColor[0]);
-         if(tColor[2]>1.) tColor[2] = 1.;
-        }
+         if(flip && perc<0) perc=-perc;
+         if(perc>0){
+            tColor[0]+= perc*(lightColor[0]);
+            if(tColor[0]>1.) tColor[0] = 1.;
+            tColor[1]+= perc*(lightColor[0]);
+            if(tColor[1]>1.) tColor[1] = 1.;
+            tColor[2]+= perc*(lightColor[0]);
+            if(tColor[2]>1.) tColor[2] = 1.;
+         }
       }
-      t =t->next;
    }
 }

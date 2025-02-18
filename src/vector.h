@@ -37,6 +37,8 @@ public:
   double mag();
   double dot(const Vector& a);
   Vector normalize();
+
+  double& operator[](int index);
 } ;
 
 class Ray{

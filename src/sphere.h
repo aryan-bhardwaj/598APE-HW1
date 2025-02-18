@@ -16,5 +16,8 @@ public:
   void setYaw(double a);
   void setPitch(double b);
   void setRoll(double c);
+
+  // BVH
+   AABB getBoundingBox();
 };
 #endif
