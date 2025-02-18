@@ -1,8 +1,16 @@
 # 598APE-HW1
 
-This repository contains code for homework 1 of 598APE.
 
-In particular, this repository is an implementation of a Raytracer.
+This program assumes the following are installed on your machine:
+* A working C++ compiler (g++ is assumed)
+* make
+* ImageMagick (for importing and exporting non-ppm images)
+* FFMpeg (for exporting movies from image sequences)
+
+In order to install the correct packages to run the program, run:
+```bash
+./install.sh
+```
 
 To compile the program run:
 ```bash
@@ -14,11 +22,8 @@ To clean existing build artifacts run:
 make clean
 ```
 
-This program assumes the following are installed on your machine:
-* A working C++ compiler (g++ is assumed in the Makefile)
-* make
-* ImageMagick (for importing and exporting non-ppm images)
-* FFMpeg (for exporting movies from image sequences)
+## Important Commit Hashs
+The following list of commit hashes represent snapshots of our fundamental optimizations. 
 
 The raytracer program here is general and can be used to generate any number of different potential scenes.
 
@@ -97,45 +102,3 @@ data/x.txt 1586 data/f.txt 3168 -1.58 -.43 2.7
 ```
 
 The goal here is to speed up the program sufficiently to make a high resolution circle of the elephant mesh (found in `data/elepx.txt` and `data/elepf.txt`), which contains 111748 triangles. One can edit the `.ray` file and comment out the sphere mesh and replace it with `data/elepx.txt 62779 data/elepf.txt 111748 -1.58 -.43 2.7` (this is done in `inputs/realelephant.ray`).
-
-## Code Overview
-
-The raytracer contains several core utilities, defined in different files.
-
-### Camera
-
-The Camera class contains information about the position and direction we are facing. An image is constructed by creating a grid of points and sending out rays from each of these points, and determining what objects they collide with. Each result becomes an individual pixel in our resulting image.
-
-### Shape
-
-Each object in our scene is defined as a shape. There are several shapes subclasses in the application. This includes a plane (an infinitely long flat surface), a sphere (a collection of points equidistant from a center), a disk (a flat surface whose points are within a given distance of a center), a box (a flat rectangle), and a triangle.
-
-Shapes have a position in space, and potentially an orientation (i.e. direction they face, as defined with the angles yaw pitch and roll).
-
-Shapes also have a texture defining what color of each point of the shape, and optionally a "normalMap" texture which defines how light bounces off each point.
-
-Core methods within shape include:
-* `getIntersection`, which defines whether a given light ray will hit the shape, and if so returns time it takes the light to hit it (otherwise infinity).
-* `getLightIntersection`: Given that a ray hits the shape, determine how a light source will illuminate the shape at that point based off of the color of the object, and its spectral properties (i.e. opaque, reflective, aminent lighting).
-* `getNormal` determine the normal axis to the point of collision, in order to compute the direction in which light will bounce off the object.
-
-### Texture
-
-A texture object defines what color will be applied at a point in space. There are two textures implemented: a single color for all points, and one loaded from an image. Textures are used to define both the color of an object, and also can optionally be used to define normal axes for an object (using data stored in rgb to define the xyz axis).
-
-### Light
-
-Light objects illuminate a scene, resulting in differences in gradients of colors on an object and shadows. Lights have a color and a position.
-
-### Autonoma
-
-An Autonoma is a base class used to hold all of the shapes in scope, the camera, and all lights.
-
-
-## Docker
-
-For ease of use and installation, we provide a docker image capable of running and building code here. The source docker file is in /docker (which is essentially a list of commands to build an OS state from scratch). It contains the dependent compilers, and some other nice things.
-
-You can build this yourself manually by running `cd docker && docker build -t <myusername>/598ape`. Alternatively we have pushed a pre-built version to `wsmoses/598ape` on Dockerhub.
-
-You can then use the Docker container to build and run your code. If you run `./dockerrun.sh` you will enter an interactive bash session with all the packages from docker installed (that script by default uses `wsmoses/598ape`, feel free to replace it with whatever location you like if you built from scratch). The current directory (aka this folder) is mounted within `/host`. Any files you create on your personal machine will be available there, and anything you make in the container in that folder will be available on your personal machine.
