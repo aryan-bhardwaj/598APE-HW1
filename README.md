@@ -35,7 +35,7 @@ Make sure to include the quotation marks! For example, to benchmark the Piano Ro
 ```bash
 hyperfine "./main.exe -i inputs/pianoroom.ray --ppm -o output/pianoroom.ppm -H 500 -W 500"
 ```
-and you can do the same with the remaining scenes.
+and you can do the same with the remaining scenes. For Globe, Sphere, and Elephant, we ran our benchmarks with a 1-frame output (as in, we set the output frame flag to 1).
 
 ## Important Commit Hashs
 The following list of commit hashes represent snapshots of our fundamental/major optimizations. 
