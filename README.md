@@ -7,9 +7,14 @@ This program assumes the following are installed on your machine:
 * ImageMagick (for importing and exporting non-ppm images)
 * FFMpeg (for exporting movies from image sequences)
 
-In order to install the correct packages to run the program, run:
+In order to install the correct packages to run the program, run either:
 ```bash
-./install.sh
+sudo bash ./install.sh
+```
+or
+```bash
+chmod +x install.sh
+sudo ./install.sh
 ```
 
 To compile the program run:
@@ -22,9 +27,29 @@ To clean existing build artifacts run:
 make clean
 ```
 
-## Important Commit Hashs
-The following list of commit hashes represent snapshots of our fundamental optimizations. 
+In order to run benchmarking tests, run
+```bash
+hyperfine "COMMAND"
+```
+Make sure to include the quotation marks! For example, to benchmark the Piano Room, you would run
+```bash
+hyperfine "./main.exe -i inputs/pianoroom.ray --ppm -o output/pianoroom.ppm -H 500 -W 500"
+```
+and you can do the same with the remaining scenes.
 
+## Important Commit Hashs
+The following list of commit hashes represent snapshots of our fundamental/major optimizations. 
+
+**Baseline code**: 04f1a833f78bb146c2cda83b92920a98fe30e6a3<br>
+**Basic branch, cache, logic changes**: 5dc3b7f6e59b35c587b6b0c50741858a5a52f2aa <br>
+**Linked list change**: 6d120c6a70feca4c5251216bd195fe329851ce45 <br>
+**Fast inverse square root**: edd66a49389bf696b41b51d7259e65562d161c1b <br>
+**Removing insertion sort**: 03c4ed4c33f4b66ad1776ba7738b7704198c2af7 <br>
+**Adding OpenMP parallelism**: 3c12127c62855c86882872da8c4bb6f6f73be37e<br>
+**BVH**: 09272da8e7d0fa78bd4688ac36aea3b4973f2d4c <br>
+
+---
+---
 The raytracer program here is general and can be used to generate any number of different potential scenes.
 
 Once compiled, one can call the raytracer program as follows:
